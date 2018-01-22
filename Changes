@@ -1,0 +1,8 @@
+Revision log for BZ::Client::REST
+
+0.01 2018-01-22
+
+    - Initial commit:
+      Minimal functions provided, search and update bugs
+    - Repo posted to github at: https://github.com/kylemhall/BZ-Client-REST
+
