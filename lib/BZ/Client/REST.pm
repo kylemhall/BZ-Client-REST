@@ -86,14 +86,58 @@ sub search_bugs {
 
     my @pairs;
     while ( my ( $key, $value ) = each %$params ) {
+        #$value =~ s/ /%20/g; FIXME: Should we be URL-encoding?
         push( @pairs, "$key=$value" );
     }
     my $query_params = join( "&", @pairs );
 
-    $self->_client->GET("$bz_tracker_url/rest/bug?$query_params");
-    $response = from_json( $rest_client->responseContent() );
+    $self->_client->GET("$url/rest/bug?$query_params");
+    $response = from_json( $self->_client->responseContent() );
 
-    return $response;
+    return $response->{bugs};
+}
+
+=item get_bug()
+
+$bug_data = $client->get_bug($bug_id);
+
+=cut
+
+sub get_bug {
+    my $self = shift;
+    my $id   = shift;
+
+    $self->login unless $self->_token;
+
+    my $url = $self->url;
+
+    $self->_client->GET("$url/rest/bug/$id");
+    $response = from_json( $self->_client->responseContent() );
+
+    return $response->{bugs}->[0];
+}
+
+=item get_comments()
+
+$comments = $client->get_comments($bug_id);
+
+This method accepts a bug id and returns an arrayref
+of comments for that bug
+
+=cut
+
+sub get_comments {
+    my $self   = shift;
+    my $bug_id = shift;
+
+    $self->login unless $self->_token;
+
+    my $url = $self->url;
+
+    $self->_client->GET("$url/rest/bug/$bug_id/comment");
+    $response = from_json( $self->_client->responseContent() );
+
+    return $response->{bugs}->{$bug_id}->{comments};
 }
 
 =item create_bug()
@@ -110,16 +154,45 @@ sub create_bug {
     my $self = shift;
     my $data = shift;
 
-    $self->login unless $self->token;
+    $self->login unless $self->_token;
 
     my $url   = $self->url;
     my $token = $self->_token;
 
-    $rest_client->POST( "$url/rest/bug?token=$token", to_json($data),
+    $self->_client->POST( "$url/rest/bug?token=$token", to_json($data),
         { "Content-type" => 'application/json' } );
-    $response = from_json( $rest_client->responseContent() );
+    $response = from_json( $self->_client->responseContent() );
 
     return $response->{id};
+}
+
+=item update_bug()
+
+$data = $client->update_bug($id, $params);
+
+This method accepts a bug id and a hashref of key/value pairs to update the
+existing bug with.
+
+Refer to L<http://bugzilla.readthedocs.io/en/latest/api/core/v1/bug.html#update-bug>
+for the valid keys that can be used.
+
+=cut
+
+sub update_bug {
+    my $self = shift;
+    my $id   = shift;
+    my $data = shift;
+
+    $self->login unless $self->_token;
+
+    my $url   = $self->url;
+    my $token = $self->_token;
+
+    $self->_client->PUT( "$url/rest/bug/$id?token=$token",
+        to_json($data), { "Content-type" => 'application/json' } );
+    $response = from_json( $self->_client->responseContent() );
+
+    return $response->{bugs}->[0];
 }
 
 =back
