@@ -10,6 +10,7 @@ WriteMakefile(
         'Class::Accessor' => 0,
         'REST::Client'    => 0,
         'JSON'            => 0,
+        'Encode'          => 0,
     },
     'BUILD_REQUIRES' => {
         'Test'       => 0,

@@ -4,6 +4,7 @@ use parent qw(Class::Accessor);
 BZ::Client::REST->mk_accessors(qw(user password url _client _token));
 
 use REST::Client;
+use Encode;
 use JSON;
 
 our $VERSION = '0.01';
@@ -86,6 +87,7 @@ sub search_bugs {
 
     my @pairs;
     while ( my ( $key, $value ) = each %$params ) {
+
         #$value =~ s/ /%20/g; FIXME: Should we be URL-encoding?
         push( @pairs, "$key=$value" );
     }
@@ -159,7 +161,8 @@ sub create_bug {
     my $url   = $self->url;
     my $token = $self->_token;
 
-    $self->_client->POST( "$url/rest/bug?token=$token", to_json($data),
+    my $json = encode( "iso-8859-1", to_json($data) );
+    $self->_client->POST( "$url/rest/bug?token=$token", $json,
         { "Content-type" => 'application/json' } );
     $response = from_json( $self->_client->responseContent() );
 
@@ -188,8 +191,9 @@ sub update_bug {
     my $url   = $self->url;
     my $token = $self->_token;
 
+    my $json = encode( "iso-8859-1", to_json($data) );
     $self->_client->PUT( "$url/rest/bug/$id?token=$token",
-        to_json($data), { "Content-type" => 'application/json' } );
+        $json, { "Content-type" => 'application/json' } );
     $response = from_json( $self->_client->responseContent() );
 
     return $response->{bugs}->[0];
