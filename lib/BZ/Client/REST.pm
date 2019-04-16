@@ -15,18 +15,18 @@ BZ::Client::REST - Bugzilla client for Perl using the RESTful API
 
 =head1 SYNOPSIS
 
-    use BZ::Client::REST;
+use BZ::Client::REST;
 
-    my $client = BZ::Client::REST->new(
-        {
-            user     => $user,
-            password => $password,
-            url      => $url,
-        }
-    );
+my $client = BZ::Client::REST->new(
+    {
+        user     => $user,
+        password => $password,
+        url      => $url,
+    }
+);
 
-    $id   = $client->create_bug($params);
-    $bugs = $client->search_bugs($params);
+$id   = $client->create_bug($params);
+$bugs = $client->search_bugs($params);
 
 =head1 DESCRIPTION
 
@@ -69,7 +69,12 @@ sub login {
 
 =item search_bugs()
 
-$bugs = $client->search_bugs($params);
+$bugs = $client->search_bugs(
+    {
+        assigned_to => kyle,
+        status      => [ 'Signed-Off', 'Passed-QA' ]
+    }
+);
 
 This method accepts a hashref of key/value parameters to search on.
 Refer to L<http://bugzilla.readthedocs.io/en/latest/api/core/v1/bug.html#search-bugs>
@@ -87,9 +92,11 @@ sub search_bugs {
 
     my @pairs;
     while ( my ( $key, $value ) = each %$params ) {
-
-        #$value =~ s/ /%20/g; FIXME: Should we be URL-encoding?
-        push( @pairs, "$key=$value" );
+        if ( ref $value eq 'ARRAY' ) {
+            push( @pairs, "$key=$_" ) for @$value;
+        } else {
+            push( @pairs, "$key=$value" );
+        }
     }
     my $query_params = join( "&", @pairs );
 
