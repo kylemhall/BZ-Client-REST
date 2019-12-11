@@ -89,6 +89,7 @@ sub search_bugs {
     $self->login unless $self->_token;
 
     my $url = $self->url;
+    my $token = $self->_token;
 
     my @pairs;
     while ( my ( $key, $value ) = each %$params ) {
@@ -100,7 +101,7 @@ sub search_bugs {
     }
     my $query_params = join( "&", @pairs );
 
-    $self->_client->GET("$url/rest/bug?$query_params");
+    $self->_client->GET("$url/rest/bug?token=$token&$query_params");
     $response = from_json( $self->_client->responseContent() );
 
     return $response->{bugs};
@@ -119,8 +120,10 @@ sub get_bug {
     $self->login unless $self->_token;
 
     my $url = $self->url;
+    my $token = $self->_token;
 
-    $self->_client->GET("$url/rest/bug/$id");
+    warn "TEST";
+    $self->_client->GET("$url/rest/bug/$id?token=$token");
     $response = from_json( $self->_client->responseContent() );
 
     return $response->{bugs}->[0];
@@ -142,8 +145,9 @@ sub get_comments {
     $self->login unless $self->_token;
 
     my $url = $self->url;
+    my $token = $self->_token;
 
-    $self->_client->GET("$url/rest/bug/$bug_id/comment");
+    $self->_client->GET("$url/rest/bug/$bug_id/comment?token=$token");
     $response = from_json( $self->_client->responseContent() );
 
     return $response->{bugs}->{$bug_id}->{comments};
