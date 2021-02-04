@@ -122,7 +122,6 @@ sub get_bug {
     my $url = $self->url;
     my $token = $self->_token;
 
-    warn "TEST";
     $self->_client->GET("$url/rest/bug/$id?token=$token");
     $response = from_json( $self->_client->responseContent() );
 
