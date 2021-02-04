@@ -51,6 +51,16 @@ This method accepts a hashref of key/value parameters to create a new bug with.
 Refer to L<http://bugzilla.readthedocs.io/en/latest/api/core/v1/bug.html#create-bugs>
 for the valid keys that can be used.
 
+=item update_bug()
+
+$data = $client->update_bug($id, $params);
+
+This method accepts a bug id and a hashref of key/value pairs to update the
+existing bug with.
+
+Refer to L<http://bugzilla.readthedocs.io/en/latest/api/core/v1/bug.html#update-bug>
+for the valid keys that can be used.
+
 =back
 
 =head1 BUGS
